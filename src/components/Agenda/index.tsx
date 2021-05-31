@@ -1,4 +1,12 @@
-import React, { ReactElement, useContext, useMemo } from 'react'
+import React, {
+  ChangeEvent,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { DateTime } from 'luxon'
 
 import greeting from 'lib/greeting'
@@ -35,15 +43,36 @@ const Agenda = (props: Props): ReactElement => {
   const account = useContext(AccountContext)
   const hour = useHour() // Dynamically return the hour of the day (0-23)
   const { globalMessage } = props
+  const [selectedCal, setSelectedCal] = useState<string>('')
+
+  const handelCalendarChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      setSelectedCal(e.target.value)
+    },
+    [],
+  )
+
+  useEffect(() => {
+    // Deselect calendar when account changes
+    if (account) setSelectedCal('')
+  }, [account])
 
   const events: AgendaItem[] = useMemo(
     () =>
       account.calendars
-        .flatMap((calendar) =>
+        .reduce((pv, cv) => {
+          if (!selectedCal) {
+            pv[pv.length] = cv
+          } else if (cv.id == selectedCal) {
+            pv[pv.length] = cv
+          }
+          return pv
+        }, [])
+        .flatMap((calendar: Calendar) =>
           calendar.events.map((event) => ({ calendar, event })),
         )
         .sort(compareByDateTime),
-    [account],
+    [account.calendars, selectedCal],
   )
 
   // const title = useMemo(() => greeting(DateTime.local().hour), [])
@@ -59,6 +88,27 @@ const Agenda = (props: Props): ReactElement => {
       <div className={style.container}>
         <div className={style.header}>
           <span className={style.title}>{title}</span>
+        </div>
+        <div className={style.filterWrapper}>
+          <div className={style.filterItemCenter}>
+            <label htmlFor="calendar">Calendar:</label>
+            <select
+              name="calendar"
+              value={selectedCal}
+              onChange={handelCalendarChange}
+            >
+              <option value="">All Calendars</option>
+              {account.calendars.map((c, i) => (
+                <option key={c.id} value={c.id}>
+                  {`Calendar ${i + 1}`}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={style.filterItemRight}>
+            Group by Department:
+            <input type="checkbox" />
+          </div>
         </div>
         <List>
           {events.map(({ calendar, event }) => (
