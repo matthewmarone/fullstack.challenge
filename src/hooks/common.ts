@@ -23,7 +23,7 @@ export const useHour = (): number => {
 
   useEffect(() => {
     // Every time hour changes set a timer to update the hour at the next hour
-    let tId: NodeJS.Timeout
+    let tId: number
     if (hour) {
       // Cacl how long until the next hour
       const wait = timeUntillNextHour() + 250 // Adding 1/4 of second for saftey
@@ -32,12 +32,12 @@ export const useHour = (): number => {
         'Hour will update at ' + new Date(new Date().getTime() + wait),
       )
       // set a timeout to update the time when the next hour arrives
-      tId = setTimeout(() => {
+      tId = window.setTimeout(() => {
         setHour(DateTime.local().hour)
       }, wait)
     }
     // Clean up timer
-    return () => clearTimeout(tId)
+    return () => window.clearTimeout(tId)
   }, [hour])
 
   return hour
