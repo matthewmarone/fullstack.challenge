@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
-import { DateTime } from 'luxon'
+// import { DateTime } from 'luxon'
 
 import greeting from 'lib/greeting'
 
@@ -17,6 +17,7 @@ import AccountContext from 'src/context/accountContext'
 
 import List from './List'
 import EventCell from './EventCell'
+import SectionHeader from './SectionHeader'
 
 import style from './style.scss'
 import { useHour } from '../../hooks'
@@ -33,6 +34,22 @@ type Props = {
 const compareByDateTime = (a: AgendaItem, b: AgendaItem) =>
   a.event.date.diff(b.event.date).valueOf()
 
+const compareByDepartmentAndDateTime = (a: AgendaItem, b: AgendaItem) => {
+  const {
+    event: { department: depA },
+  } = a
+  const {
+    event: { department: depB },
+  } = b
+  if ((depA || '__z') == (depB || '__z')) {
+    return compareByDateTime(a, b)
+  } else if (depA < depB) {
+    return -1
+  } else {
+    return 1
+  }
+}
+
 /**
  * Agenda component
  * Displays greeting (depending on time of day)
@@ -44,6 +61,7 @@ const Agenda = (props: Props): ReactElement => {
   const hour = useHour() // Dynamically return the hour of the day (0-23)
   const { globalMessage } = props
   const [selectedCal, setSelectedCal] = useState<string>('')
+  const [groupDepartment, setGroupDepartment] = useState<boolean>(false)
 
   const handelCalendarChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
@@ -51,6 +69,10 @@ const Agenda = (props: Props): ReactElement => {
     },
     [],
   )
+
+  const handleGroupChange = useCallback(() => {
+    setGroupDepartment((c) => !c)
+  }, [])
 
   useEffect(() => {
     // Deselect calendar when account changes
@@ -71,8 +93,10 @@ const Agenda = (props: Props): ReactElement => {
         .flatMap((calendar: Calendar) =>
           calendar.events.map((event) => ({ calendar, event })),
         )
-        .sort(compareByDateTime),
-    [account.calendars, selectedCal],
+        .sort(
+          groupDepartment ? compareByDepartmentAndDateTime : compareByDateTime,
+        ),
+    [account.calendars, groupDepartment, selectedCal],
   )
 
   // const title = useMemo(() => greeting(DateTime.local().hour), [])
@@ -93,6 +117,7 @@ const Agenda = (props: Props): ReactElement => {
           <div className={style.filterItemCenter}>
             <label htmlFor="calendar">Calendar:</label>
             <select
+              id="calendar"
               name="calendar"
               value={selectedCal}
               onChange={handelCalendarChange}
@@ -106,14 +131,31 @@ const Agenda = (props: Props): ReactElement => {
             </select>
           </div>
           <div className={style.filterItemRight}>
-            Group by Department:
-            <input type="checkbox" />
+            <label htmlFor="groupCheckbox">Group by Department:</label>
+            <input
+              id="groupCheckbox"
+              name="groupCheckbox"
+              type="checkbox"
+              checked={groupDepartment}
+              onChange={handleGroupChange}
+            />
           </div>
         </div>
+
         <List>
-          {events.map(({ calendar, event }) => (
-            <EventCell key={event.id} calendar={calendar} event={event} />
-          ))}
+          {events.map(({ calendar, event }, idx, arr) => {
+            const addHeader =
+              groupDepartment &&
+              (idx == 0 || event.department != arr[idx - 1].event.department)
+            return (
+              <div key={event.id}>
+                {!addHeader || (
+                  <SectionHeader label={event.department || 'Unspecified'} />
+                )}
+                <EventCell calendar={calendar} event={event} />
+              </div>
+            )
+          })}
         </List>
       </div>
     </div>
