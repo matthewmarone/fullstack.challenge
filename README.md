@@ -69,6 +69,22 @@ The requirements for this feature are:
 Please add your answers to the questions below:
 
 1. How long did you spend on this challenge?
+
+- 4 hours and 45 minutes + some time to answer these questions.
+
 2. In your opinion, what are features that Double could work on that would be helpful for assistants when managing agendas?
+
+- Since assistance are working on multiple accounts, it could be helpful to have an agenda view where all accounts are seen at the same time. We could use color coding to quickly distinguish between accounts.
+- In order to make sure assistance do not accidentally double book themselves, the calendar program should warn assistant before creating overlapping events amongst all their accounts.
+
 3. If you had more time, what would you add or change in the codebase?
+
+- I would have added unit tests
+- I would have added more comments to the code
+- I would have styled the Calendar and Department filter components, and made sure they stacked up properly on smaller screens.
+- I would have also adjusted the margins / padding on the error message dialog I added so that it would be perfectly consistent with the theme's spacing.
+- I would have fixed a few grammatical errors found in my git commits
+
 4. Do you have any constructive feedback that you would like to share with our team?
+
+- I liked this exercise and overall would have positive feed back. The only thing I can think of at this time, is that NPM reported several vulnerabilities during the install, but perhaps that was part of the test.
