@@ -9,12 +9,15 @@ import Agenda from './Agenda'
 const REAL_TIME_UPDATES_INTERVAL = 10000
 
 const Application = (): ReactElement => {
-  const [account, refreshAccount] = useAccount()
+  const [account, refreshAccount, error] = useAccount()
 
   useEffect(
     () => runEvery(REAL_TIME_UPDATES_INTERVAL, refreshAccount),
     [refreshAccount],
   )
+
+  if (error)
+    console.log('Unable to refreshe account, will try again soon', error)
 
   return (
     <AccountContext.Provider value={account}>

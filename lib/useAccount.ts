@@ -7,12 +7,20 @@ import getUpdatedAccount from './getUpdatedAccount'
 
 const initialAccountValue = createAccount()
 
-const useAccount = (): [Account, () => Promise<void>] => {
+const useAccount = (): [Account, () => Promise<void>, Error] => {
   const [account, setAccount] = useState<Account>(initialAccountValue)
-  const refreshAccount = async () =>
-    setAccount(await getUpdatedAccount(account))
+  const [error, setError] = useState<Error | null>(null)
+  const refreshAccount = async () => {
+    try {
+      const newAccount = await getUpdatedAccount(account)
+      setAccount(newAccount)
+      setError(null)
+    } catch (e) {
+      setError(e)
+    }
+  }
 
-  return [account, refreshAccount]
+  return [account, refreshAccount, error]
 }
 
 export default useAccount
