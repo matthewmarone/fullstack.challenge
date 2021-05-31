@@ -21,7 +21,11 @@ const Application = (): ReactElement => {
 
   return (
     <AccountContext.Provider value={account}>
-      <Agenda />
+      <Agenda
+        globalMessage={
+          !error ? undefined : 'Unable to refresh account... trying again.'
+        }
+      />
     </AccountContext.Provider>
   )
 }

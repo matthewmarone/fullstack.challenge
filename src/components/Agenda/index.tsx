@@ -18,6 +18,10 @@ type AgendaItem = {
   event: Event
 }
 
+type Props = {
+  globalMessage?: string
+}
+
 const compareByDateTime = (a: AgendaItem, b: AgendaItem) =>
   a.event.date.diff(b.event.date).valueOf()
 
@@ -27,9 +31,10 @@ const compareByDateTime = (a: AgendaItem, b: AgendaItem) =>
  * and list of calendar events
  */
 
-const Agenda = (): ReactElement => {
+const Agenda = (props: Props): ReactElement => {
   const account = useContext(AccountContext)
   const hour = useHour() // Dynamically return the hour of the day (0-23)
+  const { globalMessage } = props
 
   const events: AgendaItem[] = useMemo(
     () =>
@@ -46,11 +51,15 @@ const Agenda = (): ReactElement => {
 
   return (
     <div className={style.outer}>
+      <div
+        className={!globalMessage ? style.hiddenElement : style.errorMessage}
+      >
+        {globalMessage}
+      </div>
       <div className={style.container}>
         <div className={style.header}>
           <span className={style.title}>{title}</span>
         </div>
-
         <List>
           {events.map(({ calendar, event }) => (
             <EventCell key={event.id} calendar={calendar} event={event} />
