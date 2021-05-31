@@ -11,6 +11,7 @@ import List from './List'
 import EventCell from './EventCell'
 
 import style from './style.scss'
+import { useHour } from '../../hooks'
 
 type AgendaItem = {
   calendar: Calendar
@@ -28,6 +29,7 @@ const compareByDateTime = (a: AgendaItem, b: AgendaItem) =>
 
 const Agenda = (): ReactElement => {
   const account = useContext(AccountContext)
+  const hour = useHour() // Dynamically return the hour of the day (0-23)
 
   const events: AgendaItem[] = useMemo(
     () =>
@@ -39,7 +41,8 @@ const Agenda = (): ReactElement => {
     [account],
   )
 
-  const title = useMemo(() => greeting(DateTime.local().hour), [])
+  // const title = useMemo(() => greeting(DateTime.local().hour), [])
+  const title = greeting(hour)
 
   return (
     <div className={style.outer}>
